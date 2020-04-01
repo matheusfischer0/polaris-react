@@ -1,15 +1,45 @@
-import React from "react";
+import React, { useState } from "react";
 
 import { FiArrowLeft } from "react-icons/fi";
 
-import { Link } from "react-router-dom";
+import api from "../../services/api";
+
+import { Link, useHistory } from "react-router-dom";
 
 import "./style.css";
 
-import logoFullImg from "../../assets/logo-full.png";
 import logoNameImg from "../../assets/logo-name.png";
 
 export default function NewProduct() {
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [value, setValue] = useState("");
+
+  const history = useHistory();
+
+  const companyId = localStorage.getItem("companyId");
+
+  async function handleNewProduct(e) {
+    e.preventDefault();
+
+    const data = {
+      name,
+      description,
+      value
+    };
+
+    try {
+      await api.post("products", data, {
+        headers: {
+          Authorization: companyId
+        }
+      });
+      history.push("/profile");
+    } catch (error) {
+      alert("Erro ao cadastrar caso, tente novamente");
+    }
+  }
+
   return (
     <div className="new-product-container">
       <div className="content">
@@ -26,10 +56,23 @@ export default function NewProduct() {
           </Link>
         </section>
 
-        <form>
-          <input placeholder="Nome do produto" />
-          <textarea placeholder="Descrição" />
-          <input placeholder="Valor em reais" type="number" />
+        <form onSubmit={handleNewProduct}>
+          <input
+            placeholder="Nome do produto"
+            value={name}
+            onChange={e => setName(e.target.value)}
+          />
+          <textarea
+            placeholder="Descrição"
+            value={description}
+            onChange={e => setDescription(e.target.value)}
+          />
+          <input
+            placeholder="Valor em reais"
+            type="number"
+            value={value}
+            onChange={e => setValue(e.target.value)}
+          />
           <button className="button" type="submit">
             {" "}
             Cadastrar
